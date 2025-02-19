@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"math/rand"
 	"net/http"
 	"os"
 	"time"
@@ -20,7 +21,7 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 
 	switch s.Command {
 	case "/nullcan_touch":
-		handleToutch(w, &s)
+		handleTouch(w, &s)
 	case "/nullcan_worktime":
 		handleWorkTime(w, &s)
 	default:
@@ -28,7 +29,7 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func handleToutch(w http.ResponseWriter, s *slack.SlashCommand) {
+func handleTouch(w http.ResponseWriter, s *slack.SlashCommand) {
 	res := struct {
 		ResponseType string `json:"response_type"`
 		Text         string `json:"text"`
@@ -42,11 +43,16 @@ func handleToutch(w http.ResponseWriter, s *slack.SlashCommand) {
 	json.NewEncoder(w).Encode(res)
 
 	go func() {
-		time.Sleep(100 * time.Millisecond)
+		r := rand.New(rand.NewSource(time.Now().UnixNano()))
+		delayMs := r.Intn(501) + 1000
+		time.Sleep(time.Duration(delayMs) * time.Millisecond)
 		api := slack.New(os.Getenv("SLACK_BOT_TOKEN"))
-		api.PostMessage(
+		_, _, err := api.PostMessage(
 			s.ChannelID,
 			slack.MsgOptionText(fmt.Sprintf("<@%s> 打刻しました", s.UserID), false))
+		if err != nil {
+			log.Printf("Error posting message: %v", err)
+		}
 	}()
 }
 
@@ -64,11 +70,16 @@ func handleWorkTime(w http.ResponseWriter, s *slack.SlashCommand) {
 	json.NewEncoder(w).Encode(res)
 
 	go func() {
-		time.Sleep(100 * time.Millisecond)
+		r := rand.New(rand.NewSource(time.Now().UnixNano()))
+		delayMs := r.Intn(501) + 1000
+		time.Sleep(time.Duration(delayMs) * time.Millisecond)
 		api := slack.New(os.Getenv("SLACK_BOT_TOKEN"))
-		api.PostMessage(
+		_, _, err := api.PostMessage(
 			s.ChannelID,
 			slack.MsgOptionText(fmt.Sprintf("<@%s> 現在の労働時間は00:00(無職)です:smiley:", s.UserID), false))
+		if err != nil {
+			log.Printf("Error posting message: %v", err)
+		}
 	}()
 }
 
