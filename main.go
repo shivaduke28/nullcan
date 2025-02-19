@@ -28,7 +28,10 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleToutch(w http.ResponseWriter, s *slack.SlashCommand) {
-	res := slack.Msg{
+	res := struct {
+		ResponseType string `json:"response_type"`
+		Text         string `json:"text"`
+	}{
 		ResponseType: slack.ResponseTypeInChannel,
 		Text:         fmt.Sprintf("<@%s> 打刻します", s.UserID),
 	}
@@ -44,7 +47,10 @@ func handleToutch(w http.ResponseWriter, s *slack.SlashCommand) {
 }
 
 func handleWorkTime(w http.ResponseWriter, s *slack.SlashCommand) {
-	res := slack.Msg{
+	res := struct {
+		ResponseType string `json:"response_type"`
+		Text         string `json:"text"`
+	}{
 		ResponseType: slack.ResponseTypeInChannel,
 		Text:         fmt.Sprintf("<@%s> 現在の労働時間確認してきます", s.UserID),
 	}
