@@ -82,7 +82,7 @@ func handleWorkTime(w http.ResponseWriter, s *slack.SlashCommand) {
 	// @shivaduke 現在の労働時間確認してきます
 	_, _, err := api.PostMessage(
 		s.ChannelID,
-		slack.MsgOptionText("<@%s> 現在の労働時間確認してきます", false))
+		slack.MsgOptionText(fmt.Sprintf("<@%s> 現在の労働時間確認してきます", s.UserID), false))
 	if err != nil {
 		log.Printf("Failed to send message: %v", err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -117,6 +117,8 @@ func handleWorkTime(w http.ResponseWriter, s *slack.SlashCommand) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+
+	w.WriteHeader(http.StatusOK)
 }
 
 func main() {
