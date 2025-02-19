@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -27,53 +28,35 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleToutch(w http.ResponseWriter, s *slack.SlashCommand) {
-	api := slack.New(os.Getenv("SLACK_BOT_TOKEN"))
-
-	// @shivaduke 打刻します。
-	_, _, err := api.PostMessage(
-		s.ChannelID,
-		slack.MsgOptionText(fmt.Sprintf("<@%s> 打刻します", s.UserID), false))
-	if err != nil {
-		log.Printf("Failed to send message: %v", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	// @shivaduke 打刻しました。
-	_, _, err = api.PostMessage(
-		s.ChannelID,
-		slack.MsgOptionText(fmt.Sprintf("<@%s> 打刻しました", s.UserID), false))
-	if err != nil {
-		log.Printf("Failed to send message: %v", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
+	res := slack.Msg{
+		ResponseType: slack.ResponseTypeInChannel,
+		Text:         fmt.Sprintf("<@%s> 打刻します", s.UserID),
 	}
 
 	w.WriteHeader(http.StatusOK)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(res)
+
+	api := slack.New(os.Getenv("SLACK_BOT_TOKEN"))
+	api.PostMessage(
+		s.ChannelID,
+		slack.MsgOptionText(fmt.Sprintf("<@%s> 打刻しました", s.UserID), false))
 }
 
 func handleWorkTime(w http.ResponseWriter, s *slack.SlashCommand) {
-	api := slack.New(os.Getenv("SLACK_BOT_TOKEN"))
-
-	_, _, err := api.PostMessage(
-		s.ChannelID,
-		slack.MsgOptionText(fmt.Sprintf("<@%s> 現在の労働時間確認してきます", s.UserID), false))
-	if err != nil {
-		log.Printf("Failed to send message: %v", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	_, _, err = api.PostMessage(
-		s.ChannelID,
-		slack.MsgOptionText(fmt.Sprintf("<@%s> 現在の労働時間は00:00(無職)です:smiley:", s.UserID), false))
-	if err != nil {
-		log.Printf("Failed to send message: %v", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
+	res := slack.Msg{
+		ResponseType: slack.ResponseTypeInChannel,
+		Text:         fmt.Sprintf("<@%s> 現在の労働時間確認してきます", s.UserID),
 	}
 
 	w.WriteHeader(http.StatusOK)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(res)
+
+	api := slack.New(os.Getenv("SLACK_BOT_TOKEN"))
+	api.PostMessage(
+		s.ChannelID,
+		slack.MsgOptionText(fmt.Sprintf("<@%s> 現在の労働時間は00:00(無職)です:smiley:", s.UserID), false))
 }
 
 func main() {
