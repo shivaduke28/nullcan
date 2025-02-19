@@ -5,8 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-
-	// "os"
+	"os"
 
 	"github.com/slack-go/slack"
 )
@@ -41,10 +40,12 @@ func handleToutch(w http.ResponseWriter, s *slack.SlashCommand) {
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(res)
 
-	// api := slack.New(os.Getenv("SLACK_BOT_TOKEN"))
-	// api.PostMessage(
-	// 	s.ChannelID,
-	// 	slack.MsgOptionText(fmt.Sprintf("<@%s> 打刻しました", s.UserID), false))
+	go func() {
+		api := slack.New(os.Getenv("SLACK_BOT_TOKEN"))
+		api.PostMessage(
+			s.ChannelID,
+			slack.MsgOptionText(fmt.Sprintf("<@%s> 打刻しました", s.UserID), false))
+	}()
 }
 
 func handleWorkTime(w http.ResponseWriter, s *slack.SlashCommand) {
@@ -60,10 +61,12 @@ func handleWorkTime(w http.ResponseWriter, s *slack.SlashCommand) {
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(res)
 
-	// api := slack.New(os.Getenv("SLACK_BOT_TOKEN"))
-	// api.PostMessage(
-	// 	s.ChannelID,
-	// 	slack.MsgOptionText(fmt.Sprintf("<@%s> 現在の労働時間は00:00(無職)です:smiley:", s.UserID), false))
+	go func() {
+		api := slack.New(os.Getenv("SLACK_BOT_TOKEN"))
+		api.PostMessage(
+			s.ChannelID,
+			slack.MsgOptionText(fmt.Sprintf("<@%s> 現在の労働時間は00:00(無職)です:smiley:", s.UserID), false))
+	}()
 }
 
 func main() {
