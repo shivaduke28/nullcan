@@ -28,8 +28,8 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 	switch s.Command {
 	case "/nullcan_touch":
 		handleToutch(w, &s)
-	// case "/nullcan_worktime":
-	// handleWorkTime(w, &s)
+	case "/nullcan_worktime":
+		handleWorkTime(w, &s)
 	default:
 		w.WriteHeader(http.StatusInternalServerError)
 	}
@@ -76,47 +76,48 @@ func handleToutch(w http.ResponseWriter, s *slack.SlashCommand) {
 	w.WriteHeader(http.StatusOK)
 }
 
-// func handleWorkTime(w http.ResponseWriter, s *slack.SlashCommand) {
-// 	api := slack.New(os.Getenv("SLACK_BOT_TOKEN"))
+func handleWorkTime(w http.ResponseWriter, s *slack.SlashCommand) {
+	api := slack.New(os.Getenv("SLACK_BOT_TOKEN"))
 
-// 	// @shivaduke 現在の労働時間確認してきます
-// 	_, _, err := api.PostMessage(
-// 		s.ChannelID,
-// 		slack.MsgOptionText("<@%s> 現在の労働時間確認してきます", false))
-// 	if err != nil {
-// 		log.Printf("Failed to send message: %v", err)
-// 		w.WriteHeader(http.StatusInternalServerError)
-// 		return
-// 	}
+	// @shivaduke 現在の労働時間確認してきます
+	_, _, err := api.PostMessage(
+		s.ChannelID,
+		slack.MsgOptionText("<@%s> 現在の労働時間確認してきます", false))
+	if err != nil {
+		log.Printf("Failed to send message: %v", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 
-// 	// 未出勤、勤務中、退室中
-// 	status, ok := userStatuses[s.UserID]
+	// 未出勤、勤務中、退室中
+	status, ok := userStatuses[s.UserID]
 
-// 	now := time.Now()
-// 	var workingStatus string
-// 	var workTime time.Duration
-// 	if ok && status.IsWorking {
-// 		workingStatus = "勤務中"
-// 		workTime = status.WorkTime + now.Sub(status.StartTime)
-// 	} else if status.StartTime.Day() == now.Day() {
-// 		workingStatus = "退室中"
-// 		workTime = status.WorkTime
-// 	} else {
-// 		workingStatus = "未出勤"
-// 		workTime = 0
-// 	}
+	now := time.Now()
+	var workingStatus string
+	var workTime time.Duration
+	if ok && status.IsWorking {
+		workingStatus = "勤務中"
+		workTime = status.WorkTime + now.Sub(status.StartTime)
+	} else if status.StartTime.Day() == now.Day() {
+		workingStatus = "退室中"
+		workTime = status.WorkTime
+	} else {
+		workingStatus = "未出勤"
+		workTime = 0
+	}
 
-// 	// @shivaduke 現在の労働時間はHH:MM(勤務中)です:スマイリー:
-// 	_, _, err = api.PostMessage(
-// 		s.ChannelID,
-// 		slack.MsgOptionText(fmt.Sprintf("<@%s> 現在の労働時間は現在の労働時間確認してきます"), false))
-// 	if err != nil {
-// 		log.Printf("Failed to send message: %v", err)
-// 		w.WriteHeader(http.StatusInternalServerError)
-// 		return
-// 	}
-
-// }
+	// @shivaduke 現在の労働時間はHH:MM(勤務中)です:スマイリー:
+	h := int32(workTime.Hours())
+	m := int32(workTime.Minutes()) - h*60
+	_, _, err = api.PostMessage(
+		s.ChannelID,
+		slack.MsgOptionText(fmt.Sprintf("<@%s> 現在の労働時間は%d:%d(%s)です:スマイリー:", s.UserID, h, m, workingStatus), false))
+	if err != nil {
+		log.Printf("Failed to send message: %v", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+}
 
 func main() {
 	http.HandleFunc("/slack/commands", handleRequest)
