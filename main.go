@@ -98,7 +98,7 @@ func handleWorkTime(w http.ResponseWriter, s *slack.SlashCommand) {
 	if ok && status.IsWorking {
 		workingStatus = "勤務中"
 		workTime = status.WorkTime + now.Sub(status.StartTime)
-	} else if status.StartTime.Day() == now.Day() {
+	} else if ok && status.StartTime.Day() == now.Day() {
 		workingStatus = "退室中"
 		workTime = status.WorkTime
 	} else {
