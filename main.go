@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/slack-go/slack"
 )
@@ -41,6 +42,7 @@ func handleToutch(w http.ResponseWriter, s *slack.SlashCommand) {
 	json.NewEncoder(w).Encode(res)
 
 	go func() {
+		time.Sleep(100 * time.Millisecond)
 		api := slack.New(os.Getenv("SLACK_BOT_TOKEN"))
 		api.PostMessage(
 			s.ChannelID,
@@ -62,6 +64,7 @@ func handleWorkTime(w http.ResponseWriter, s *slack.SlashCommand) {
 	json.NewEncoder(w).Encode(res)
 
 	go func() {
+		time.Sleep(100 * time.Millisecond)
 		api := slack.New(os.Getenv("SLACK_BOT_TOKEN"))
 		api.PostMessage(
 			s.ChannelID,
