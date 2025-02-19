@@ -7,6 +7,7 @@ import (
 	"math/rand"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/slack-go/slack"
@@ -16,6 +17,11 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 	s, err := slack.SlashCommandParse(r)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	if !strings.Contains(s.ChannelName, "無職") {
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
