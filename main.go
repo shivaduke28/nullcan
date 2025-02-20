@@ -6,6 +6,7 @@ import (
 	"log"
 	"math/rand"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
@@ -51,7 +52,7 @@ func handleTouch(w http.ResponseWriter, s *slack.SlashCommand) {
 		r := rand.New(rand.NewSource(time.Now().UnixNano()))
 		delayMs := r.Intn(501) + 1000
 		time.Sleep(time.Duration(delayMs) * time.Millisecond)
-		api := slack.New(s.Token)
+		api := slack.New(os.Getenv("SLACK_BOT_TOKEN"))
 		_, _, err := api.PostMessage(
 			s.ChannelID,
 			slack.MsgOptionText(fmt.Sprintf("<@%s> 打刻しました", s.UserID), false))
@@ -78,7 +79,7 @@ func handleWorkTime(w http.ResponseWriter, s *slack.SlashCommand) {
 		r := rand.New(rand.NewSource(time.Now().UnixNano()))
 		delayMs := r.Intn(501) + 1000
 		time.Sleep(time.Duration(delayMs) * time.Millisecond)
-		api := slack.New(s.Token)
+		api := slack.New(os.Getenv("SLACK_BOT_TOKEN"))
 		_, _, err := api.PostMessage(
 			s.ChannelID,
 			slack.MsgOptionText(fmt.Sprintf("<@%s> 現在の労働時間は00:00(無職)です:smiley:", s.UserID), false))
