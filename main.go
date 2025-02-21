@@ -89,8 +89,13 @@ func handleWorkTime(w http.ResponseWriter, s *slack.SlashCommand) {
 	}()
 }
 
+func handleHealth(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+}
+
 func main() {
 	http.HandleFunc("/slack/commands", handleSlashCommand)
+	http.HandleFunc("/health", handleHealth)
 	log.Println("Server listening on :8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
