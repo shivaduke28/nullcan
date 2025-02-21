@@ -13,7 +13,7 @@ import (
 	"github.com/slack-go/slack"
 )
 
-func handleRequest(w http.ResponseWriter, r *http.Request) {
+func handleSlashCommand(w http.ResponseWriter, r *http.Request) {
 	s, err := slack.SlashCommandParse(r)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -90,7 +90,7 @@ func handleWorkTime(w http.ResponseWriter, s *slack.SlashCommand) {
 }
 
 func main() {
-	http.HandleFunc("/slack/commands", handleRequest)
+	http.HandleFunc("/slack/commands", handleSlashCommand)
 	log.Println("Server listening on :8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
