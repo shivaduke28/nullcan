@@ -1,0 +1,27 @@
+name: Health Check
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+    inputs:
+      domain:
+        description: "domain for nullcan app"
+        required: true
+        default: ""
+
+env:
+  HEALTH_ENDPOINT: "/health"
+
+jobs:
+  health_check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send GET request to /health
+        run: |
+          DOMAIN="${{ github.event.inputs.domain }}"
+          if [ -z "$DOMAIN" ]; then
+            echo "Domain is not set. Please provide a domain when running the workflow manually."
+            exit 1
+          fi
+          curl -sSf "${DOMAIN}${HEALTH_ENDPOINT}" || echo "Health check failed"
