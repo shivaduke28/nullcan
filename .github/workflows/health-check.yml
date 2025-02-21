@@ -4,14 +4,10 @@ on:
   schedule:
     - cron: "*/10 * * * *"
   workflow_dispatch:
-    inputs:
-      domain:
-        description: "domain for nullcan app"
-        required: true
-        default: ""
 
 env:
   HEALTH_ENDPOINT: "/health"
+  DOMAIN: ${{ vars.DOMAIN }}
 
 jobs:
   health_check:
@@ -19,7 +15,6 @@ jobs:
     steps:
       - name: Send GET request to /health
         run: |
-          DOMAIN="${{ github.event.inputs.domain }}"
           if [ -z "$DOMAIN" ]; then
             echo "Domain is not set. Please provide a domain when running the workflow manually."
             exit 1
