@@ -64,12 +64,10 @@ func handleHolidays(w http.ResponseWriter, s *slack.SlashCommand) {
 }
 
 func sendSlackResponse(w http.ResponseWriter, s *slack.SlashCommand, opt commandOpt) {
-	res := struct {
-		ResponseType string `json:"response_type"`
-		Text         string `json:"text"`
-	}{
+	res := slack.Msg{
 		ResponseType: slack.ResponseTypeInChannel,
 		Text:         fmt.Sprintf("<@%s> %s", s.UserID, opt.initialMessage),
+		Icons:        &slack.Icon{IconEmoji: ":sake:"},
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -83,7 +81,9 @@ func sendSlackResponse(w http.ResponseWriter, s *slack.SlashCommand, opt command
 		api := slack.New(os.Getenv("SLACK_BOT_TOKEN"))
 		_, _, err := api.PostMessage(
 			s.ChannelID,
-			slack.MsgOptionText(fmt.Sprintf("<@%s> %s", s.UserID, opt.delayedMessage), false))
+			slack.MsgOptionText(fmt.Sprintf("<@%s> %s", s.UserID, opt.delayedMessage), false),
+			slack.MsgOptionIconEmoji(":sake:"),
+		)
 		if err != nil {
 			log.Printf("Error posting message: %v", err)
 		}
