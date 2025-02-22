@@ -83,7 +83,9 @@ func sendSlackResponse(w http.ResponseWriter, s *slack.SlashCommand, opt command
 		api := slack.New(os.Getenv("SLACK_BOT_TOKEN"))
 		_, _, err := api.PostMessage(
 			s.ChannelID,
-			slack.MsgOptionText(fmt.Sprintf("<@%s> %s", s.UserID, opt.delayedMessage), false))
+			slack.MsgOptionText(fmt.Sprintf("<@%s> %s", s.UserID, opt.delayedMessage), false),
+			slack.MsgOptionIconEmoji(":sake:"),
+		)
 		if err != nil {
 			log.Printf("Error posting message: %v", err)
 		}
