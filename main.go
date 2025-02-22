@@ -30,6 +30,8 @@ func handleSlashCommand(w http.ResponseWriter, r *http.Request) {
 		handleTouch(w, &s)
 	case "/nullcan_worktime":
 		handleWorkTime(w, &s)
+	case "/nullcan_holidays":
+		handleHolidays(w, &s)
 	default:
 		w.WriteHeader(http.StatusInternalServerError)
 	}
@@ -83,6 +85,32 @@ func handleWorkTime(w http.ResponseWriter, s *slack.SlashCommand) {
 		_, _, err := api.PostMessage(
 			s.ChannelID,
 			slack.MsgOptionText(fmt.Sprintf("<@%s> 現在の労働時間は00:00(無職)です:smiley:", s.UserID), false))
+		if err != nil {
+			log.Printf("Error posting message: %v", err)
+		}
+	}()
+}
+
+func handleHolidays(w http.ResponseWriter, s *slack.SlashCommand) {
+	res := struct {
+		ResponseType string `json:"response_type"`
+		Text         string `json:"text"`
+	}{
+		ResponseType: slack.ResponseTypeInChannel,
+		Text:         fmt.Sprintf("<@%s> 無休残確認してきます", s.UserID),
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(res)
+
+	go func() {
+		r := rand.New(rand.NewSource(time.Now().UnixNano()))
+		delayMs := r.Intn(501) + 1000
+		time.Sleep(time.Duration(delayMs) * time.Millisecond)
+		api := slack.New(os.Getenv("SLACK_BOT_TOKEN"))
+		_, _, err := api.PostMessage(
+			s.ChannelID,
+			slack.MsgOptionText(fmt.Sprintf("<@%s> 無休残日数は∞日です :smiley:", s.UserID), false))
 		if err != nil {
 			log.Printf("Error posting message: %v", err)
 		}
